@@ -1,9 +1,12 @@
-FROM python:3.9
+FROM python:3.9-slim
 
 # Prepare workspace
 WORKDIR /usr/rijndael
-RUN apt-get install -y make gcc
+RUN apt-get update && apt-get install -y make gcc 
 RUN pip install pytest coverage
+
+# clear cache
+RUN rm -rf /var/lib/apt/lists/* 
 
 # Copy source-code
 RUN mkdir ./dist
