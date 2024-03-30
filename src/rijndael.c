@@ -14,10 +14,10 @@
  * *** Step 1. SubBytes ***
  */
 
-// void _sub_word(unsigned char *word, unsigned char* table) {
-//   for(int c = 0; c < BLOCK_COL; c++)
-//     word[c] = (unsigned char) (S_BOX[word[c]]);
-// }
+void _sub_word(unsigned char *word, unsigned char* table) {
+  // for(int c = 0; c < BLOCK_COL; c++)
+  //   word[c] = (unsigned char) (S_BOX[word[c]]);
+}
 
 void sub_bytes(unsigned char *block) {
   // for(int r = 0; r < BLOCK_ROW; r++)

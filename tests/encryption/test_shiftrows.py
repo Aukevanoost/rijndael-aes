@@ -22,7 +22,7 @@ class TestEncryptShiftRows:
             actual = ctypes.string_at(word, 4)
 
             # Assert
-            assert actual == rot.expected
+            assert actual.hex() == rot.expected.hex()
 
     # 
     # (POS) Test multiple rotations
@@ -37,7 +37,7 @@ class TestEncryptShiftRows:
         actual = ctypes.string_at(word, 4)
 
         # Assert
-        assert actual == fixture.expected
+        assert actual.hex() == fixture.expected.hex()
 
     # 
     # (NEG) Test multiple rotations
@@ -52,7 +52,7 @@ class TestEncryptShiftRows:
         actual = ctypes.string_at(word, 4)
 
         # Assert
-        assert actual == fixture.expected
+        assert actual.hex() == fixture.expected.hex()
 
     # 
     # Test multiple rotations
@@ -77,7 +77,7 @@ class TestEncryptShiftRows:
         actual = ctypes.string_at(block, 16)
 
         # Assert
-        assert actual == fixture.expected
+        assert actual.hex() == fixture.expected.hex()
 
     # 
     # Test a real block
@@ -102,7 +102,7 @@ class TestEncryptShiftRows:
         actual = ctypes.string_at(block, 16)
 
         # Assert
-        assert actual == fixture.expected
+        assert actual.hex() == fixture.expected.hex()
 
 
 
@@ -127,7 +127,7 @@ class TestDecryptShiftRows:
             actual = ctypes.string_at(word, 4)
 
             # Assert
-            assert actual == rot.expected
+            assert actual.hex() == rot.expected.hex()
 
     def test_rotword_left_thrice(self):
         # Arrange
@@ -139,7 +139,7 @@ class TestDecryptShiftRows:
         actual = ctypes.string_at(word, 4)
 
         # Assert
-        assert actual == fixture.expected
+        assert actual.hex() == fixture.expected.hex()
 
     def test_shiftrows_rijndael_block_decrypt(self):
         fixture = UnitFixture(
@@ -162,4 +162,4 @@ class TestDecryptShiftRows:
         actual = ctypes.string_at(block, 16)
 
         # Assert
-        assert actual == fixture.expected
+        assert actual.hex() == fixture.expected.hex()
