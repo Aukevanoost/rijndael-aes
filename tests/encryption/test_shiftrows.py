@@ -147,12 +147,10 @@ class TestDecryptShiftRows:
                         b'\x41\x27\xbf\xb4' +
                         b'\x5d\x52\x11\x98' +
                         b'\xf1\xe5\x30\xae',
-            expected = b'\xd4\xe0\xb8\x1e' +
+             expected = b'\xd4\xe0\xb8\x1e' +
                         b'\x27\xbf\xb4\x41' +
                         b'\x11\x98\x5d\x52' +
                         b'\xae\xf1\xe5\x30',
-
-
         )
 
         block = ctypes.create_string_buffer(fixture.input, 16)
