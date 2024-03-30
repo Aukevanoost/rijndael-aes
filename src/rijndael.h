@@ -7,7 +7,13 @@
 #define RIJNDAEL_H
 
 #define BLOCK_ACCESS(block, row, col) (block[(row * 4) + col])
-#define BLOCK_SIZE 16
+
+// #define BLOCK_SIZE 16
+#define BLOCK_ROW 4
+#define BLOCK_COL 4
+#define BLOCK_SIZE (BLOCK_ROW * BLOCK_COL)
+
+unsigned char *expand_key(unsigned char *cipher_key);
 
 /*
  * These should be the main encrypt/decrypt functions (i.e. the main
