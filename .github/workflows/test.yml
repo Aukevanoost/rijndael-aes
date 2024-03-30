@@ -3,14 +3,13 @@ on: push
 jobs:
   test: 
     name: Run pytest suite
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone the repo
+      uses: actions/checkout@v4
 
-      steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Build test image
+      run: docker build -t aes-test-suite .
 
-      - name: Build test image
-        run: docker build -t aes-test-suite
-
-      - name: Run tests
-        run: docker run -it --rm --name test-runner aes-test-suite pytest -v
+    - name: Run tests
+      run: docker run -it --rm --name test-runner aes-test-suite pytest -v
