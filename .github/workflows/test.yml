@@ -12,4 +12,4 @@ jobs:
       run: docker build -t aes-test-suite .
 
     - name: Run tests
-      run: docker run -it --rm --name test-runner aes-test-suite pytest -v
+      run: docker run --rm --name test-runner aes-test-suite pytest -v
