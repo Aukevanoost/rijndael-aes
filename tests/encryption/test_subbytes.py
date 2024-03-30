@@ -2,7 +2,7 @@ import ctypes
 from util.lib import aes
 from wrappers import UnitFixture
 
-class TestEncryptSubBytes:
+class TestWordSubBytesLogic: 
     def test_subbytes_word(self):
         # Arrange
         S_BOX = b'\x11\x22\x33\x44'
@@ -51,10 +51,10 @@ class TestEncryptSubBytes:
         # Assert
         assert actual.hex() == fixture.expected.hex()
 
-    def test_subbytes_first_block(self):
+class TestEncryptSubBytes:
+    def test_sbox_first_block(self):
         fixture = UnitFixture(
-                input = b'' +
-                        b'\x00\x01\x02\x03' +
+                input = b'\x00\x01\x02\x03' +
                         b'\x10\x11\x12\x13' +
                         b'\x20\x21\x22\x23' +
                         b'\x30\x31\x32\x33',
@@ -74,7 +74,7 @@ class TestEncryptSubBytes:
         # Assert
         assert actual.hex() == fixture.expected.hex()
 
-    def test_subbytes_last_block(self):
+    def test_sbox_last_block(self):
         fixture = UnitFixture(
                 input = b'' +
                         b'\xcc\xcd\xce\xcf' +
@@ -97,7 +97,7 @@ class TestEncryptSubBytes:
         # Assert
         assert actual.hex() == fixture.expected.hex()
 
-    def test_subbytes_rijndael_block(self):
+    def test_sbox_rijndael_block(self):
         fixture = UnitFixture(
                 input = b'\x19\xa0\x9a\xe9' +
                         b'\x3d\xf4\xc6\xf8' +
@@ -114,6 +114,74 @@ class TestEncryptSubBytes:
 
         # Act 
         aes.sub_bytes(block)
+        actual = ctypes.string_at(block, 16)
+
+        # Assert
+        assert actual.hex() == fixture.expected.hex()
+
+class TestDecryptSubBytes:
+    def test_sbox_inv_first_block(self):
+        fixture = UnitFixture(
+                input = b'\x00\x01\x02\x03' +
+                        b'\x10\x11\x12\x13' +
+                        b'\x20\x21\x22\x23' +
+                        b'\x30\x31\x32\x33',
+
+             expected = b'\x52\x09\x6A\xD5' +
+                        b'\x7C\xE3\x39\x82' +
+                        b'\x54\x7B\x94\x32' +
+                        b'\x08\x2E\xA1\x66'
+            )
+
+        block = ctypes.create_string_buffer(fixture.input, 16)
+
+        # Act 
+        aes.invert_sub_bytes(block)
+        actual = ctypes.string_at(block, 16)
+
+        # Assert
+        assert actual.hex() == fixture.expected.hex()
+
+    def test_sbox_inv_last_block(self):
+        fixture = UnitFixture(
+                input = b'' +
+                        b'\xcc\xcd\xce\xcf' +
+                        b'\xdc\xdd\xde\xdf' +
+                        b'\xec\xed\xee\xef' +
+                        b'\xfc\xfd\xfe\xff',
+
+             expected = b'\x27\x80\xEC\x5F' +
+                        b'\x93\xC9\x9C\xEF' +
+                        b'\x83\x53\x99\x61' +
+                        b'\x55\x21\x0C\x7D'
+            )
+
+        block = ctypes.create_string_buffer(fixture.input, 16)
+
+        # Act 
+        aes.invert_sub_bytes(block)
+        actual = ctypes.string_at(block, 16)
+
+        # Assert
+        assert actual.hex() == fixture.expected.hex()
+
+    def test_sbox_inv_rijndael_block(self):
+        fixture = UnitFixture(
+                input = b'\xd4\xe0\xb8\x1e' +
+                        b'\x27\xbf\xb4\x41' +
+                        b'\x11\x98\x5d\x52' +
+                        b'\xae\xf1\xe5\x30',
+                        
+             expected = b'\x19\xa0\x9a\xe9' +
+                        b'\x3d\xf4\xc6\xf8' +
+                        b'\xe3\xe2\x8d\x48' +
+                        b'\xbe\x2b\x2a\x08',
+        )
+
+        block = ctypes.create_string_buffer(fixture.input, 16)
+
+        # Act 
+        aes.invert_sub_bytes(block)
         actual = ctypes.string_at(block, 16)
 
         # Assert

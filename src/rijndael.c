@@ -20,14 +20,13 @@ void _sub_word(unsigned char *word, unsigned char* table) {
 }
 
 void sub_bytes(unsigned char *block) {
-  for(int r = 0; r < BLOCK_ROW; r++){
+  for(int r = 0; r < BLOCK_ROW; r++)
     _sub_word(&block[r * BLOCK_COL], &S_BOX);
-  }
 }
 
 void invert_sub_bytes(unsigned char *block) {
-    // for(int r = 0; r < BLOCK_ROW; r++)
-    //   _sub_word(block[r*BLOCK_COL], S_BOX_INV);
+  for(int r = 0; r < BLOCK_ROW; r++)
+    _sub_word(&block[r * BLOCK_COL], &S_BOX_INV);
 }
 
 /*
