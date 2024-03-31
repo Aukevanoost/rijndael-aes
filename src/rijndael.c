@@ -70,14 +70,28 @@ void invert_shift_rows(unsigned char *block) {
     _rot_word(&block[r*BLOCK_COL], r);
 }
 
-
-
-
 /*
- * *** Step 3. MixColumns ***
+ * *** Step 2. ShiftRows ***
  */
+unsigned char _xtime(int x) {
+    return (x & 0x80) ? ((x << 1) ^ 0x1b) : (x<<1);
+}
+
+void _mix_word(unsigned char *word)
+{	
+  unsigned char total = 0x00;
+  for(int i = 0; i < BLOCK_COL; i++) total ^= word[i];
+
+  unsigned char tmp = word[0];
+  for(int i = 0; i < BLOCK_COL-1; i++)
+    word[i] ^= total ^ _xtime(word[i] ^ word[i+1]);
+
+  word[BLOCK_COL-1] ^= total ^ _xtime(word[BLOCK_COL-1] ^ tmp);
+}
+
 void mix_columns(unsigned char *block) {
-  // TODO: Implement me!
+  	for(int r = 0; r < BLOCK_ROW; r++)
+      _mix_word(&block[r*BLOCK_COL]);
 }
 
 void invert_mix_columns(unsigned char *block) {
