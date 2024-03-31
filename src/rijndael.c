@@ -10,10 +10,11 @@
 
 #include "rijndael.h"
 
+
+
 /*
  * *** Step 1. SubBytes ***
  */
-
 void _sub_word(unsigned char *word, unsigned char* table) {
   for(int c = 0; c < BLOCK_COL; c++)
     word[c] = (unsigned char) (table[word[c]]);
@@ -33,51 +34,60 @@ void invert_sub_bytes(unsigned char *block) {
  * *** Step 2. ShiftRows ***
  */
 
-//pos = left-shift, neg = right-shift
-void _rot_word(unsigned char *word, signed int spots) {
-  
-  while (spots != 0){
-    int shift = (spots < 0) ? -1 : 1;
-
-    // Starting point:
-    // - left-shift = word[1]
-    // - right-shift = word[3] 
-    int offset = (BLOCK_COL + shift);
-    unsigned char temp = word[offset % BLOCK_COL];
-
-    // Loop through 0, 1, 2 because 3 will receive temp 
-    for(int i = 0; i < (BLOCK_COL-1); i++){
-      // reverses the loop if shift is right
-      int idx = offset + (i*shift);
-
-      // Shifts an index to the left (+1) or right (-1) depending on shift
-      word[idx % BLOCK_COL] = word[(idx + shift) % BLOCK_COL];
-    }
-
-    // (starting-point - shift) will receive temp  
-    word[(offset - shift) % BLOCK_COL] = temp;
-    spots -= shift;
-  }
-}
-
-void shift_rows(unsigned char *block) {
-  for(int r = 0; r < BLOCK_ROW; r++)
-    _rot_word(&block[r*BLOCK_COL], -r);
-}
-
-void invert_shift_rows(unsigned char *block) {
-  for(int r = 0; r < BLOCK_ROW; r++)
-    _rot_word(&block[r*BLOCK_COL], r);
+void shift_word(unsigned char *word, int length) {      
+  unsigned char tmp = word[0];
+  for(int i = 0; i < (length-1); i++) word[i] = word[i+1];
+  word[length-1] = tmp;
 }
 
 /*
- * *** Step 2. ShiftRows ***
+ * Most efficient way to shift rows, 
+ * for a more generic and readable implementation check shift_rows.c
+ *
+ * <-rows->
+ * 01 04 07  ^       // formula: Index = [row_index + (columns * col_index)]
+ * 02 05 08 cols     // As seen on the left, 
+ * 03 06 09  v       // the matrix format is a bit funky
+ * 
+*/
+void shift_rows(unsigned char *block) { 
+    for(int r = 0; r < BLOCK_ROW; r++) {                                        // For every row
+        for(int n = r; n>0; n--){                                               // perform rotate 'index' amount of times
+            unsigned char tmp = block[r];                                       // save first entry as temp 
+            for(int c = 0; c < BLOCK_COL-1; c++){                               // For every cell in row except for last one
+                block[r + (c * BLOCK_ROW)] = block[r + ((c+1) * BLOCK_ROW)];    // override cell with val of next cell  
+            }                        
+            block[r + ((BLOCK_COL-1) * BLOCK_ROW)] = tmp;                       // Override last cell with val of first cell
+        } 
+    }   
+}
+
+void shift_word_inv(unsigned char *word, int length) {      
+  unsigned char tmp = word[length-1];
+  for(int i = length-1; i > 0; i--) word[i] = word[i-1];
+  word[0] = tmp;
+}
+
+void invert_shift_rows(unsigned char *block) {      
+    for(int r = 0; r < BLOCK_ROW; r++) {                                      // For every row
+        for(int n = r; n>0; n--){                                             // - Perform rotate 'index' amount of times
+            unsigned char tmp = block[r + ((BLOCK_COL-1) * BLOCK_ROW)];       // - this time start with last cell in row
+            for(int c = BLOCK_COL-1; c > 0; c--){                             // - walk through cells in reversed order
+                block[r + (c * BLOCK_ROW)] = block[r + ((c-1) * BLOCK_ROW)];  // - replace cell value with val of next cell 
+            }                        
+            block[r] = tmp;                                                   // - replace first cell with val of last cell
+        } 
+    }   
+}
+
+/*
+ * *** Step 3. MixColumns ***
  */
 unsigned char _xtime(int x) {
     return (x & 0x80) ? ((x << 1) ^ 0x1b) : (x<<1);
 }
 
-void _mix_word(unsigned char *word)
+void _mix_column(unsigned char *word)
 {	
   unsigned char total = 0x00;
   for(int i = 0; i < BLOCK_COL; i++) total ^= word[i];
@@ -90,8 +100,10 @@ void _mix_word(unsigned char *word)
 }
 
 void mix_columns(unsigned char *block) {
-  	for(int r = 0; r < BLOCK_ROW; r++)
-      _mix_word(&block[r*BLOCK_COL]);
+  for(int r = 0; r < BLOCK_ROW; r++){
+    unsigned char *test = &block[r*BLOCK_COL];
+    _mix_column(test);
+  }
 }
 
 void invert_mix_columns(unsigned char *block) {
