@@ -8,10 +8,12 @@
 
 #define BLOCK_ACCESS(block, row, col) (block[(row * 4) + col])
 
-// #define BLOCK_SIZE 16
 #define BLOCK_ROW 4
 #define BLOCK_COL 4
 #define BLOCK_SIZE (BLOCK_ROW * BLOCK_COL)
+
+#define KEY_ROW 4
+#define KEY_COL 4
 
 unsigned char *expand_key(unsigned char *cipher_key);
 

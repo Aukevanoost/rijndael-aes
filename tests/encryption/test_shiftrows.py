@@ -134,7 +134,7 @@ class TestDecryptShiftRows:
             word = ctypes.create_string_buffer(rot.input, 4)
 
             # Act 
-            aes.shift_word_inv(ctypes.pointer(word), 4)
+            aes.invert_shift_word(ctypes.pointer(word), 4)
             actual = ctypes.string_at(word, 4)
 
             # Assert
@@ -149,9 +149,9 @@ class TestDecryptShiftRows:
         word = ctypes.create_string_buffer(fixture.input, 4)
 
         # Act 
-        aes.shift_word_inv(word, 4)
-        aes.shift_word_inv(word, 4)
-        aes.shift_word_inv(word, 4)
+        aes.invert_shift_word(word, 4)
+        aes.invert_shift_word(word, 4)
+        aes.invert_shift_word(word, 4)
         actual = ctypes.string_at(word, 4)
 
         # Assert

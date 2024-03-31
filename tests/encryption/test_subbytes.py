@@ -76,17 +76,16 @@ class TestEncryptSubBytes:
 
     def test_sbox_last_block(self):
         fixture = UnitFixture(
-                input = b'' +
-                        b'\xcc\xcd\xce\xcf' +
-                        b'\xdc\xdd\xde\xdf' +
-                        b'\xec\xed\xee\xef' +
-                        b'\xfc\xfd\xfe\xff',
+            input = b'\xcc\xcd\xce\xcf' +
+                    b'\xdc\xdd\xde\xdf' +
+                    b'\xec\xed\xee\xef' +
+                    b'\xfc\xfd\xfe\xff',
 
-             expected = b'\x4B\xBD\x8B\x8A' +
-                        b'\x86\xC1\x1D\x9E' +
-                        b'\xCE\x55\x28\xDF' +
-                        b'\xB0\x54\xBB\x16'
-            )
+         expected = b'\x4B\xBD\x8B\x8A' +
+                    b'\x86\xC1\x1D\x9E' +
+                    b'\xCE\x55\x28\xDF' +
+                    b'\xB0\x54\xBB\x16'
+        )
 
         block = ctypes.create_string_buffer(fixture.input, 16)
 

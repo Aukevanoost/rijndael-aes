@@ -52,17 +52,17 @@ void shift_word(unsigned char *word, int length) {
 */
 void shift_rows(unsigned char *block) { 
     for(int r = 0; r < BLOCK_ROW; r++) {                                        // For every row
-        for(int n = r; n>0; n--){                                               // perform rotate 'index' amount of times
-            unsigned char tmp = block[r];                                       // save first entry as temp 
-            for(int c = 0; c < BLOCK_COL-1; c++)                                // For every cell in row except for last one
-                block[r + (c * BLOCK_ROW)] = block[r + ((c+1) * BLOCK_ROW)];    // override cell with val of next cell  
-                                    
-            block[r + ((BLOCK_COL-1) * BLOCK_ROW)] = tmp;                       // Override last cell with val of first cell
-        } 
+      for(int n = r; n>0; n--){                                               // perform rotate 'index' amount of times
+        unsigned char tmp = block[r];                                       // save first entry as temp 
+        for(int c = 0; c < BLOCK_COL-1; c++)                                // For every cell in row except for last one
+            block[r + (c * BLOCK_ROW)] = block[r + ((c+1) * BLOCK_ROW)];    // override cell with val of next cell  
+                                
+        block[r + ((BLOCK_COL-1) * BLOCK_ROW)] = tmp;                       // Override last cell with val of first cell
+      } 
     }   
 }
 
-void shift_word_inv(unsigned char *word, int length) {      
+void invert_shift_word(unsigned char *word, int length) {      
   unsigned char tmp = word[length-1];
   for(int i = length-1; i > 0; i--) word[i] = word[i-1];
   word[0] = tmp;
@@ -117,7 +117,7 @@ void invert_mix_word(unsigned char *word) {
 void invert_mix_columns(unsigned char *block) {
   for(int i = 0; i < BLOCK_COL; i++) 
     invert_mix_word(&block[i*4]);
-
+  
   mix_columns(block);
 }
 
@@ -134,11 +134,18 @@ void add_round_key(unsigned char *block, unsigned char *round_key) {
  * vector, containing the 11 round keys one after the other
  */
 unsigned char *expand_key(unsigned char *cipher_key) {
-  unsigned char *round_key = malloc(16 * 1); // 176
+  unsigned char *round_key = malloc((KEY_COL * KEY_ROW) * 2); // 176
 
   // row 0-3
-  for (int i = 0; i < 16; i++) 
-    round_key[i] = cipher_key[i]; 
+  memcpy(round_key, cipher_key, (KEY_COL * KEY_ROW));
+  for(int i = 4; i < 44;i++) {
+    unsigned char *row = &round_key[i * KEY_COL];
+    unsigned char *old_row = &round_key[(i-1) * KEY_COL];
+
+    memcpy(row, old_row, KEY_COL);
+    shift_word(row, KEY_COL);
+    
+  }
   
  
 
