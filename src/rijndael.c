@@ -54,9 +54,9 @@ void shift_rows(unsigned char *block) {
     for(int r = 0; r < BLOCK_ROW; r++) {                                        // For every row
         for(int n = r; n>0; n--){                                               // perform rotate 'index' amount of times
             unsigned char tmp = block[r];                                       // save first entry as temp 
-            for(int c = 0; c < BLOCK_COL-1; c++){                               // For every cell in row except for last one
+            for(int c = 0; c < BLOCK_COL-1; c++)                                // For every cell in row except for last one
                 block[r + (c * BLOCK_ROW)] = block[r + ((c+1) * BLOCK_ROW)];    // override cell with val of next cell  
-            }                        
+                                    
             block[r + ((BLOCK_COL-1) * BLOCK_ROW)] = tmp;                       // Override last cell with val of first cell
         } 
     }   
@@ -72,9 +72,9 @@ void invert_shift_rows(unsigned char *block) {
     for(int r = 0; r < BLOCK_ROW; r++) {                                      // For every row
         for(int n = r; n>0; n--){                                             // - Perform rotate 'index' amount of times
             unsigned char tmp = block[r + ((BLOCK_COL-1) * BLOCK_ROW)];       // - this time start with last cell in row
-            for(int c = BLOCK_COL-1; c > 0; c--){                             // - walk through cells in reversed order
-                block[r + (c * BLOCK_ROW)] = block[r + ((c-1) * BLOCK_ROW)];  // - replace cell value with val of next cell 
-            }                        
+            for(int c = BLOCK_COL-1; c > 0; c--)                              // - walk through cells in reversed order
+              block[r + (c * BLOCK_ROW)] = block[r + ((c-1) * BLOCK_ROW)];    // - replace cell value with val of next cell 
+                                 
             block[r] = tmp;                                                   // - replace first cell with val of last cell
         } 
     }   
@@ -87,27 +87,38 @@ unsigned char _xtime(int x) {
     return (x & 0x80) ? ((x << 1) ^ 0x1b) : (x<<1);
 }
 
-void _mix_column(unsigned char *word)
+void _mix_column(unsigned char *col, int length)
 {	
   unsigned char total = 0x00;
-  for(int i = 0; i < BLOCK_COL; i++) total ^= word[i];
+  for(int i = 0; i < length; i++) total ^= col[i];
 
-  unsigned char tmp = word[0];
-  for(int i = 0; i < BLOCK_COL-1; i++)
-    word[i] ^= total ^ _xtime(word[i] ^ word[i+1]);
+  unsigned char tmp = col[0];
+  for(int i = 0; i < length-1; i++)
+    col[i] ^= total ^ _xtime(col[i] ^ col[i+1]);
 
-  word[BLOCK_COL-1] ^= total ^ _xtime(word[BLOCK_COL-1] ^ tmp);
+  col[length-1] ^= total ^ _xtime(col[length-1] ^ tmp);
 }
 
 void mix_columns(unsigned char *block) {
-  for(int r = 0; r < BLOCK_ROW; r++){
-    unsigned char *test = &block[r*BLOCK_COL];
-    _mix_column(test);
+  for(int c = 0; c < BLOCK_COL; c++){
+    unsigned char *col = &block[c*BLOCK_COL];
+    _mix_column(col, 4);
   }
 }
 
+void invert_mix_word(unsigned char *word) {
+  unsigned char even_xtime = _xtime(_xtime(word[0] ^ word[2]));
+  for(int i=0; i<4; i+=2) word[i] ^= even_xtime;
+
+  unsigned char uneven_xtime = _xtime(_xtime(word[1] ^ word[3]));
+  for(int i=1; i<4; i+=2) word[i] ^= uneven_xtime;
+}
+
 void invert_mix_columns(unsigned char *block) {
-  // TODO: Implement me!
+  for(int i = 0; i < BLOCK_COL; i++) 
+    invert_mix_word(&block[i*4]);
+
+  mix_columns(block);
 }
 
 /*
