@@ -14,6 +14,8 @@
 #define KEY_ROW_SIZE 4
 #define KEY_COL_SIZE 4
 
+#define ROUNDS 10
+
 unsigned char *expand_key(unsigned char *cipher_key);
 
 /*

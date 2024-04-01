@@ -34,13 +34,13 @@ void _sub_word(unsigned char *word, int length, unsigned char* lookup_table) {
 }
 
 void sub_bytes(unsigned char *block) {
-  for(int r = 0; r < BLOCK_ROW_SIZE; r++)
-    _sub_word(&block[r * BLOCK_COL_SIZE], BLOCK_COL_SIZE, &S_BOX);
+  for(int r = 0; r < BLOCK_ROW_SIZE; r++)                                 // For each row in block
+    _sub_word(&block[r * BLOCK_COL_SIZE], BLOCK_COL_SIZE, &S_BOX);        // Substitute column using S_BOX
 }
 
 void invert_sub_bytes(unsigned char *block) {
-  for(int r = 0; r < BLOCK_ROW_SIZE; r++)
-    _sub_word(&block[r * BLOCK_COL_SIZE], BLOCK_COL_SIZE, &S_BOX_INV);
+  for(int r = 0; r < BLOCK_ROW_SIZE; r++)                                 // For each row in block
+    _sub_word(&block[r * BLOCK_COL_SIZE], BLOCK_COL_SIZE, &S_BOX_INV);    // Substitute column using S_BOX_INV
 }
 
 /*
@@ -48,9 +48,9 @@ void invert_sub_bytes(unsigned char *block) {
  */
 
 void shift_word(unsigned char *word, int length) {      
-  unsigned char tmp = word[0];
-  for(int i = 0; i < (length-1); i++) word[i] = word[i+1];
-  word[length-1] = tmp;
+  unsigned char tmp = word[0];                                            // Temporary store first variable
+  for(int i = 0; i < (length-1); i++) word[i] = word[i+1];                // Replace all vars but last
+  word[length-1] = tmp;                                                   // Replace last var with first var
 }
 
 /*
@@ -68,9 +68,9 @@ void shift_rows(unsigned char *block) {
       for(int n = r; n>0; n--){                                                         // perform rotate 'index' amount of times
         unsigned char tmp = block[r];                                                   // save first entry as temp 
         for(int c = 0; c < BLOCK_COL_SIZE-1; c++)                                       // For every cell in row except for last one
-            block[r + (c * BLOCK_ROW_SIZE)] = block[r + ((c+1) * BLOCK_ROW_SIZE)];      // override cell with val of next cell  
+            block[r + (c * BLOCK_COL_SIZE)] = block[r + ((c+1) * BLOCK_COL_SIZE)];      // override cell with val of next cell  
                                 
-        block[r + ((BLOCK_COL_SIZE-1) * BLOCK_ROW_SIZE)] = tmp;                         // Override last cell with val of first cell
+        block[r + ((BLOCK_ROW_SIZE-1) * BLOCK_COL_SIZE)] = tmp;                         // Override last cell with val of first cell
       } 
     }   
 }
@@ -84,9 +84,9 @@ void invert_shift_word(unsigned char *word, int length) {
 void invert_shift_rows(unsigned char *block) {      
     for(int r = 0; r < BLOCK_ROW_SIZE; r++) {                                           // For every row
         for(int n = r; n>0; n--){                                                       // - Perform rotate 'index' amount of times
-            unsigned char tmp = block[r + ((BLOCK_COL_SIZE-1) * BLOCK_ROW_SIZE)];       // - this time start with last cell in row
+            unsigned char tmp = block[r + ((BLOCK_ROW_SIZE-1) * BLOCK_COL_SIZE)];       // - this time start with last cell in row
             for(int c = BLOCK_COL_SIZE-1; c > 0; c--)                                   // - walk through cells in reversed order
-              block[r + (c * BLOCK_ROW_SIZE)] = block[r + ((c-1) * BLOCK_ROW_SIZE)];    // - replace cell value with val of next cell 
+              block[r + (c * BLOCK_COL_SIZE)] = block[r + ((c-1) * BLOCK_COL_SIZE)];    // - replace cell value with val of next cell 
                                  
             block[r] = tmp;                                                             // - replace first cell with val of last cell
         } 
@@ -138,98 +138,98 @@ void invert_mix_columns(unsigned char *block) {
  * *** XOR_B Bytes ***
  */
 void _XOR_B(unsigned char *a, unsigned char *b, int length) {
-  for(int i = 0; i < length; i++)
-    b[i] = a[i] ^ b[i];
+  for(int i = 0; i < length; i++)                                     // For each byte in word
+    b[i] = a[i] ^ b[i];                                               // B = A XOR B
 }
 
 /*
  * This operation is shared between encryption and decryption
  */
 void add_round_key(unsigned char *block, unsigned char *round_key) {
-  int size = (KEY_COL_SIZE < BLOCK_COL_SIZE) ? KEY_COL_SIZE : BLOCK_COL_SIZE;
+  int row_size = (KEY_ROW_SIZE < BLOCK_ROW_SIZE) ? KEY_ROW_SIZE : BLOCK_ROW_SIZE;   // Choose smallest provided rowsize, KEY or BLOCK
+  int col_size = (KEY_COL_SIZE < BLOCK_COL_SIZE) ? KEY_COL_SIZE : BLOCK_COL_SIZE;   // Choose smallest provided colsize, KEY or BLOCK
 
-  for (int r = 0; r < BLOCK_ROW_SIZE; r++)
-    _XOR_B( &round_key[r*KEY_COL_SIZE],  &block[r*BLOCK_COL_SIZE],  size);
+  for (int r = 0; r < row_size; r++)                                                // For each row
+    _XOR_B( &round_key[r * col_size],  &block[r * col_size],  col_size);            // block_col XOR roundkey_col
 }
 
 /*
- * This function should expand the round key. Given an input,
- * which is a single 128-bit key, it should return a 176-byte
- * vector, containing the 11 round keys one after the other
- */
+ * Will expand the key-block (16-byte) to 11 keys (176-byte)
+*/
 unsigned char *expand_key(unsigned char *cipher_key) {
-  unsigned char *round_key = malloc(sizeof(unsigned char) * ((KEY_COL_SIZE * KEY_ROW_SIZE) * 11)); // 176
+  int KEY_BLOCK_SIZE = KEY_COL_SIZE * KEY_ROW_SIZE;
 
-  // row 0-3
-  memcpy(round_key, cipher_key, (KEY_COL_SIZE * KEY_ROW_SIZE));
-  for(int i = 4; i < 44;i++) {
-    unsigned char *col = &round_key[i * KEY_COL_SIZE];
-    unsigned char *prev_col = &round_key[(i-1) * KEY_COL_SIZE];
-    unsigned char *prev_block = &round_key[(i-4) * KEY_COL_SIZE]; // I-4
+  unsigned char *round_key = malloc(sizeof(unsigned char) * (KEY_BLOCK_SIZE * (ROUNDS + 1)));   // Allocate space for expanded key
 
-    memcpy(col, prev_col, KEY_COL_SIZE);
+  memcpy(round_key, cipher_key, KEY_BLOCK_SIZE);                                    // Copy cipher_key into first block
+  for(int c = KEY_COL_SIZE; c < (KEY_COL_SIZE * (ROUNDS + 1)); c++) {               // For all other blocks, iterate through cols
 
-    if(i%4 == 0) {
-      shift_word(col, KEY_COL_SIZE); 
-      _sub_word(col, KEY_COL_SIZE, S_BOX); 
-      col[0] ^= R_CON[i/4];  
+    unsigned char *col = &round_key[c * KEY_COL_SIZE];                              // Ref to 'W'   current column
+    unsigned char *prev_col = &round_key[(c-1) * KEY_COL_SIZE];                     // Ref to 'W-1' prev column
+    unsigned char *prev_block = &round_key[(c - KEY_COL_SIZE) * KEY_COL_SIZE];      // Ref to 'W-4' first column of prev block
+
+    memcpy(col, prev_col, KEY_COL_SIZE);                                            // Copy 'W-1' into 'W'
+
+    if(c % KEY_COL_SIZE == 0) {                                                     // For every first column of block
+      shift_word(col, KEY_COL_SIZE);                                                // 1) shift column
+      _sub_word(col, KEY_COL_SIZE, S_BOX);                                          // 2) substitute bytes (cells)
+      col[0] ^= R_CON[c / KEY_COL_SIZE];                                            // 3) Use R_CON to XOR first byte (cell)
     }
-    _XOR_B(prev_block, col, KEY_COL_SIZE);
+    _XOR_B(prev_block, col, KEY_COL_SIZE);                                          // XOR 'prev_col' into current 'col'
   }
 
   return round_key;
 }
 
 /*
- * The implementations of the functions declared in the
- * header file should go here
+ * AES 128-bit encryption
  */
-unsigned char *aes_encrypt_block(unsigned char *plaintext, unsigned char *key) {
-  int BLOCK_SIZE = (BLOCK_ROW_SIZE * BLOCK_COL_SIZE);
+unsigned char *aes_encrypt_block(unsigned char *plaintext, unsigned char *key) {    
+  int BLOCK_SIZE = (BLOCK_ROW_SIZE * BLOCK_COL_SIZE);                               
+  int KEY_SIZE = (KEY_ROW_SIZE * KEY_COL_SIZE);                               
 
-  unsigned char *output = (unsigned char *) malloc(sizeof(unsigned char) * BLOCK_SIZE);
-  unsigned char *round_keys = expand_key(key);
+  unsigned char *output = malloc(sizeof(unsigned char) * BLOCK_SIZE);               // Allocate space for block
+  unsigned char *round_keys = expand_key(key);                                      // Expand 16-bit key to 176-bit key (1 per round)
 
-  // Init round
-  memcpy(output, plaintext, BLOCK_SIZE);
-  add_round_key(output, key);
+  memcpy(output, plaintext, BLOCK_SIZE);                                            // 'Init round', store plaintext in block 
+  add_round_key(output, key);                                                       // 1) XOR cipherkey into plaintext
 
-  for(int i = 1; i <= 10; i++) {
-    unsigned char *round_key = &round_keys[(i * KEY_COL_SIZE) * KEY_ROW_SIZE];
-    sub_bytes(output);
-    shift_rows(output);
-    if (i <= 9) mix_columns(output);
-    add_round_key(output, round_key);
+  for(int i = 1; i <= ROUNDS; i++) {                                                // For every round:
+    unsigned char *round_key = &round_keys[i * KEY_SIZE];                           // get roundKey
+    sub_bytes(output);                                                              // 1) SubBytes block
+    shift_rows(output);                                                             // 2) ShiftRows block
+    if (i <= ROUNDS-1) mix_columns(output);                                         // 3) for all but last round, MixColumns block
+    add_round_key(output, round_key);                                               // 4) XOR roundkey into block
   }
 
-  free(round_keys);
+  free(round_keys);                                                                 // Deallocate the roundkeys
   return output;
 }
 
-unsigned char *aes_decrypt_block(unsigned char *ciphertext,
-                                 unsigned char *key) {
+unsigned char *aes_decrypt_block(unsigned char *ciphertext, unsigned char *key) {
   int BLOCK_SIZE = (BLOCK_ROW_SIZE * BLOCK_COL_SIZE);
+  int KEY_SIZE = (KEY_ROW_SIZE * KEY_COL_SIZE);                               
 
-  unsigned char *output = (unsigned char *) malloc(sizeof(unsigned char) * BLOCK_SIZE);
-  unsigned char *round_keys = expand_key(key);
+  unsigned char *output = malloc(sizeof(unsigned char) * BLOCK_SIZE);               // Allocate space for block
+  unsigned char *round_keys = expand_key(key);                                      // Expand 16-bit key to 176-bit key (1 per round)
 
   // Init round
-  memcpy(output, ciphertext, BLOCK_SIZE);
+  memcpy(output, ciphertext, BLOCK_SIZE);                                           // Store cipherkey in block
   
-  for(int i = 10; i > 0; i--) {
-    unsigned char *round_key = &round_keys[(i * KEY_COL_SIZE) * KEY_ROW_SIZE];
-    add_round_key(output, round_key);
-    if (i <= 9) invert_mix_columns(output);
-    invert_shift_rows(output);
-    invert_sub_bytes(output);
+  for(int i = ROUNDS; i > 0; i--) {                                                 // Reverse 'encrypt' steps, for every round:
+    unsigned char *round_key = &round_keys[(i * KEY_COL_SIZE) * KEY_ROW_SIZE];      // get roundKey
+    add_round_key(output, round_key);                                               // 4) XOR roundkey into block
+    if (i <= ROUNDS-1) invert_mix_columns(output);                                  // 3) for all but last round, MixColumns block
+    invert_shift_rows(output);                                                      // 2) ShiftRows block
+    invert_sub_bytes(output);                                                       // 1) SubBytes block
   }
 
-  add_round_key(output, round_keys);
+  add_round_key(output, round_keys);                                                // reversed 'Init round', XOR roundkey with block
 
-  free(round_keys);
+  free(round_keys);                                                                 // Free roundkeys
   return output;
 }
 
 void cleanup(unsigned char *ptr) {
-  free(ptr);
+  free(ptr);                                                                        // Used by test-suite to remove bytes from the heap
 }
