@@ -1,11 +1,11 @@
 
-int BLOCK_ROW = 5;
-int BLOCK_COL = 4;
+int BLOCK_ROW_SIZE = 5;
+int BLOCK_COL_SIZE = 4;
 
 void print_matrix(unsigned char *word) {
-    for(int r = 0; r < BLOCK_ROW; r++) {
-        for(int c = 0; c < BLOCK_COL; c++){
-            printf("%02X ", word[r + (c * BLOCK_ROW)]);
+    for(int r = 0; r < BLOCK_ROW_SIZE; r++) {
+        for(int c = 0; c < BLOCK_COL_SIZE; c++){
+            printf("%02X ", word[r + (c * BLOCK_ROW_SIZE)]);
         }
         printf("\n");
     }

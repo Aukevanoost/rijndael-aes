@@ -1,8 +1,7 @@
 import ctypes
-from util.lib import aes, format_ref_key, format_block_hor
+from util.lib import aes, format_block_hor
 import aes_ref.aes as ref
 from wrappers.heaparray import HeapArray
-
 
 class TestDecryptBlock:
 

@@ -13,7 +13,7 @@ class TestWordSubBytesLogic:
         word = ctypes.create_string_buffer(fixture.input, 4)
 
         # Act
-        aes._sub_word(word, S_BOX)
+        aes._sub_word(word, 4, S_BOX)
         actual = ctypes.string_at(word, 4)
 
         # Assert
@@ -29,7 +29,7 @@ class TestWordSubBytesLogic:
         word = ctypes.create_string_buffer(fixture.input, 4)
 
         # Act
-        aes._sub_word(word, S_BOX)
+        aes._sub_word(word, 4, S_BOX)
         actual = ctypes.string_at(word, 4)
 
         # Assert
@@ -45,7 +45,7 @@ class TestWordSubBytesLogic:
         word = ctypes.create_string_buffer(fixture.input, 4)
 
         # Act
-        aes._sub_word(word, S_BOX)
+        aes._sub_word(word, 4, S_BOX)
         actual = ctypes.string_at(word, 4)
 
         # Assert

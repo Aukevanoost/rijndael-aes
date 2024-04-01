@@ -192,18 +192,18 @@ class AES:
         Expands and returns a list of key matrices for the given master_key.
         """
         # Initialize round keys with raw key material.
-        key_columns = bytes2matrix(master_key) ### [4*4]
+        KEY_COL_SIZEumns = bytes2matrix(master_key) ### [4*4]
         iteration_size = len(master_key) // 4 ### 4
 
         i = 1
 
         ### while 4 < (10 + 1) * 4
-        while len(key_columns) < (self.n_rounds + 1) * 4:
+        while len(KEY_COL_SIZEumns) < (self.n_rounds + 1) * 4:
             # Copy previous word.
-            word = list(key_columns[-1]) ### [13, 14, 15, 16]
+            word = list(KEY_COL_SIZEumns[-1]) ### [13, 14, 15, 16]
 
             # Perform schedule_core once every "row".
-            if len(key_columns) % iteration_size == 0: ### 4 % 4
+            if len(KEY_COL_SIZEumns) % iteration_size == 0: ### 4 % 4
                 # Circular shift.
                 word.append(word.pop(0)) ### 1. Circular shift
                 # Map to S-BOX.
@@ -211,17 +211,17 @@ class AES:
                 # XOR with first byte of R-CON, since the others bytes of R-CON are 0.
                 word[0] ^= r_con[i]
                 i += 1
-            elif len(master_key) == 32 and len(key_columns) % iteration_size == 4:
+            elif len(master_key) == 32 and len(KEY_COL_SIZEumns) % iteration_size == 4:
                 # Run word through S-box in the fourth iteration when using a
                 # 256-bit key.
                 word = [s_box[b] for b in word]
 
             # XOR with equivalent word from previous iteration.
-            word = xor_bytes(word, key_columns[-iteration_size])
-            key_columns.append(word)
+            word = xor_bytes(word, KEY_COL_SIZEumns[-iteration_size])
+            KEY_COL_SIZEumns.append(word)
 
         # Group key words in 4x4 byte matrices.
-        return [key_columns[4*i : 4*(i+1)] for i in range(len(key_columns) // 4)]
+        return [KEY_COL_SIZEumns[4*i : 4*(i+1)] for i in range(len(KEY_COL_SIZEumns) // 4)]
 
     def encrypt_block(self, plaintext):
         """

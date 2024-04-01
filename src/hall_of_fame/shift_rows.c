@@ -43,23 +43,23 @@ void _rotate(unsigned char **list, int length, signed int spots) {
 
 // Get rows first, then rotate rows
 void shift_rows(unsigned char *block) {
-  unsigned char *row[BLOCK_ROW];
+  unsigned char *row[BLOCK_ROW_SIZE];
       
-  for (int r = 0; r < BLOCK_ROW; r++) {
+  for (int r = 0; r < BLOCK_ROW_SIZE; r++) {
     // Convert columns to rows
-    for(int c = 0; c < BLOCK_COL; c++) row[c] = &block[r + (c * BLOCK_COL)];
+    for(int c = 0; c < BLOCK_COL_SIZE; c++) row[c] = &block[r + (c * BLOCK_COL_SIZE)];
 
-    _rotate(row, BLOCK_ROW, r);
+    _rotate(row, BLOCK_ROW_SIZE, r);
   } 
 }
 
 void invert_shift_rows(unsigned char *block) {
-  unsigned char *row[BLOCK_ROW];
+  unsigned char *row[BLOCK_ROW_SIZE];
       
-  for (int r = 0; r < BLOCK_ROW; r++) {
+  for (int r = 0; r < BLOCK_ROW_SIZE; r++) {
     // Convert columns to rows
-    for(int c = 0; c < BLOCK_COL; c++) row[c] = &block[r + (c * BLOCK_COL)];
+    for(int c = 0; c < BLOCK_COL_SIZE; c++) row[c] = &block[r + (c * BLOCK_COL_SIZE)];
 
-    _rotate(row, BLOCK_ROW, -r);
+    _rotate(row, BLOCK_ROW_SIZE, -r);
   } 
 }
