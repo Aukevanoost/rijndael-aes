@@ -96,42 +96,49 @@ void invert_shift_rows(unsigned char *block) {
 /*
  * *** Step 3. MixColumns ***
  */
+
+ 
+
+// [ref: https://web.archive.org/web/20100626212235/http://cs.ucsb.edu/~koc/cs178/projects/JT/aes.c]
+// Balanced out bit-check with redundant '& 0xFF' to prevent timed attacks
 unsigned char _xtime(int x) {
-    return (x & 0x80) ? ((x << 1) ^ 0x1b) : (x<<1);
+    return (x & 0x80) ? ((x << 1) ^ 0x1b) : ((x<<1) & 0xFF);                       
 }
 
-void _mix_column(unsigned char *col, int length)
+// Multiplies a byte by 2 in the Galois field
+// Full explanation: The design of Rijndael 4.1.2
+void _mix_word(unsigned char *word, int length)
 {	
-  unsigned char total = 0x00;
-  for(int i = 0; i < length; i++) total ^= col[i];
+  unsigned char total = 0x00;                                     
+  for(int i = 0; i < length; i++) total ^= word[i];                                      // Take XOR of a word
 
-  unsigned char tmp = col[0];
-  for(int i = 0; i < length-1; i++)
-    col[i] ^= total ^ _xtime(col[i] ^ col[i+1]);
+  unsigned char tmp = word[0];                                                           // Store first value of word in tmp
+  for(int i = 0; i < length-1; i++)                                                      // For each byte in word
+    word[i] ^= total ^ _xtime(word[i] ^ word[i+1]);                                      // (xtime lookup of cell XOR next cell) XOR total
 
-  col[length-1] ^= total ^ _xtime(col[length-1] ^ tmp);
+  word[length-1] ^= total ^ _xtime(word[length-1] ^ tmp);                                // (xtime lookup of cell XOR first cell) XOR total
 }
 
 void mix_columns(unsigned char *block) {
-  for(int c = 0; c < BLOCK_COL_SIZE; c++){
-    unsigned char *col = &block[c*BLOCK_COL_SIZE];
-    _mix_column(col, 4);
+  for(int r = 0; r < BLOCK_ROW_SIZE; r++){                                               // foreach row in block
+    _mix_word(&block[r*BLOCK_COL_SIZE], BLOCK_COL_SIZE);                                 // Mix column
   }
 }
 
-void invert_mix_word(unsigned char *word) {
-  unsigned char even_xtime = _xtime(_xtime(word[0] ^ word[2]));
-  for(int i=0; i<4; i+=2) word[i] ^= even_xtime;
+// Full explanation: The design of Rijndael 4.1.3
+void invert_mix_word(unsigned char *word, int length) { 
+  unsigned char even_xtime = _xtime(_xtime(word[0] ^ word[2]));                         
+  for(int i=0; i<length; i+=2) word[i] ^= even_xtime;
 
   unsigned char uneven_xtime = _xtime(_xtime(word[1] ^ word[3]));
-  for(int i=1; i<4; i+=2) word[i] ^= uneven_xtime;
+  for(int i=1; i<length; i+=2) word[i] ^= uneven_xtime;
 }
 
 void invert_mix_columns(unsigned char *block) {
-  for(int i = 0; i < BLOCK_COL_SIZE; i++) 
-    invert_mix_word(&block[i*4]);
+  for(int r = 0; r < BLOCK_ROW_SIZE; r++)                                               // foreach row in block
+    invert_mix_word(&block[r * BLOCK_COL_SIZE], BLOCK_COL_SIZE);                        // Prepare columns
   
-  mix_columns(block);
+  mix_columns(block);                                                                   // Mix columns
 }
 
 /*

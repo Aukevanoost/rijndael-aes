@@ -14,7 +14,7 @@ class TestEncryptMixColumns:
 
         # Act
         ref.mix_single_column(expected)
-        aes._mix_column(word, 4)
+        aes._mix_word(word, 4)
         actual = ctypes.string_at(word, 4)
 
         # Assert
