@@ -1,17 +1,28 @@
 
-# class HeapArray:
-    # def __init__(self, input: c_void_p):
-    #     self.ptr = input
-    #     self.value = cast(input, c_char_p).value.rstrip(b' ')
-    #     print(self.value)
+import ctypes
+from util.lib import aes
 
-    # def get(self): 
-    #     return self.value
+class HeapArray:
+    def __init__(self, size, addr):
+        self.active = True
+        self._addr = addr
+        self._val = ctypes.string_at(addr, size)
+        print(self.value)
 
-    # def clean(self):
-    #     aes.cleanup(self.ptr)
+    @property
+    def value(self): 
+         return self._val 
 
-    # @staticmethod
-    # def set(ptr: c_void_p):
-    #     return HeapArray(ptr)
+    def hex(self):
+        return self._val.hex()
+
+    def __del__(self):
+        aes.cleanup(self._addr)
+
+    @staticmethod
+    def set(size, addr):
+        return HeapArray(size, addr)
     
+    @staticmethod
+    def of(size, fn):
+        return HeapArray(size, fn())

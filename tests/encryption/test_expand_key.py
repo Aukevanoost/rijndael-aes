@@ -1,5 +1,6 @@
 import ctypes
 from util.lib import aes, format_ref_key, format_block_hor
+from wrappers.heaparray import HeapArray
 import aes_ref.aes as ref
 
 # Example used: 
@@ -27,15 +28,17 @@ class TestExpandKey:
                     b'\xd0\x14\xf9\xa8\xc9\xee\x25\x89\xe1\x3f\x0c\xc8\xb6\x63\x0c\xa6'
 
         # Act
-        address = aes.expand_key(master_key)
-        actual = ctypes.string_at(address, 176)
+        actual = HeapArray.of(
+            size=11*16, 
+            fn=lambda: aes.expand_key(master_key)
+        )
 
         # Assert
         # print(format_block_hor(actual, 4))
         # print("")
         # print(format_block_hor(expected, 4))
-        aes.cleanup(address)
-        assert actual == expected
+
+        assert actual.value == expected
 
     def test_expand_key_from_ref(self):
         # Arrange
@@ -46,14 +49,15 @@ class TestExpandKey:
                 
         master_key = ctypes.create_string_buffer(input, 16)
 
-        # # Act
-        address = aes.expand_key(master_key)
-        actual = ctypes.string_at(address, 176)
+        # Act
+        actual = HeapArray.of(
+            size=11*16, 
+            fn=lambda: aes.expand_key(master_key)
+        )
         expected = format_ref_key(ref.AES(input)._key_matrices)
 
         # Assert
         # print(format_block_hor(actual, 4))
         # print("")
         # print(format_block_hor(expected, 4))
-        aes.cleanup(address)
-        assert expected == actual
+        assert expected == actual.value
