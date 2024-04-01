@@ -2,7 +2,9 @@ import ctypes
 
 aes = ctypes.CDLL("./dist/rijndael.so")
 
-aes.expand_key.restype = ctypes.POINTER(ctypes.c_char * 16)
+aes.expand_key.restype = ctypes.POINTER(ctypes.c_char * 176)
+aes.aes_encrypt_block.restype = ctypes.POINTER(ctypes.c_char * 16)
+aes.aes_decrypt_block.restype = ctypes.POINTER(ctypes.c_char * 16)
 
 def format_word(a):
     return ':'.join([a.hex()[i:i+2] for i in range(0, len(a)*2, 2)])
@@ -16,8 +18,7 @@ def format_block_vert(a):
         output += '\n' if ((i+1)%4 == 0) else ':'
         if ((i+1)%16 == 0): output += '\n'   
 
-    return output
-    
+    return output   
 
 def format_block_hor(a, rows):
     input = a.hex()

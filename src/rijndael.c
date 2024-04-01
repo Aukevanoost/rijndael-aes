@@ -133,7 +133,14 @@ void _XOR_B(unsigned char *a, unsigned char *b, int length) {
  * This operation is shared between encryption and decryption
  */
 void add_round_key(unsigned char *block, unsigned char *round_key) {
-  // TODO: Implement me!
+  int size = (KEY_COL < BLOCK_COL) ? KEY_COL : BLOCK_COL;
+
+  for (int r = 0; r < BLOCK_ROW; r++){
+    unsigned char *block_col = &block[r*BLOCK_COL];
+    unsigned char *key_col = &round_key[r*KEY_COL];
+    _XOR_B(key_col, block_col, size);
+  }
+
 }
 
 /*
@@ -142,7 +149,7 @@ void add_round_key(unsigned char *block, unsigned char *round_key) {
  * vector, containing the 11 round keys one after the other
  */
 unsigned char *expand_key(unsigned char *cipher_key) {
-  unsigned char *round_key = malloc((KEY_COL * KEY_ROW) * 11); // 176
+  unsigned char *round_key = malloc(sizeof(unsigned char) * ((KEY_COL * KEY_ROW) * 11)); // 176
 
   // row 0-3
   memcpy(round_key, cipher_key, (KEY_COL * KEY_ROW));
@@ -164,28 +171,53 @@ unsigned char *expand_key(unsigned char *cipher_key) {
   return round_key;
 }
 
-
-// void XORB(unsigned char *A, unsigned char *B) {
-//   for(int i = 0; i < BLOCK_COL; i++)
-//     B[i] = A[i] ^ B[i];
-// }
-
 /*
  * The implementations of the functions declared in the
  * header file should go here
  */
 unsigned char *aes_encrypt_block(unsigned char *plaintext, unsigned char *key) {
-  // TODO: Implement me!
-  unsigned char *output =
-      (unsigned char *)malloc(sizeof(unsigned char) * (BLOCK_ROW * BLOCK_COL));
+  int block_size = (BLOCK_ROW * BLOCK_COL);
+
+  unsigned char *output = (unsigned char *) malloc(sizeof(unsigned char) * block_size);
+  unsigned char *round_keys = expand_key(key);
+
+  // Init round
+  memcpy(output, plaintext, block_size);
+  add_round_key(output, key);
+
+  for(int i = 1; i <= 10; i++) {
+    unsigned char *round_key = &round_keys[(i * KEY_COL) * KEY_ROW];
+    sub_bytes(output);
+    shift_rows(output);
+    if (i <= 9) mix_columns(output);
+    add_round_key(output, round_key);
+  }
+
+  free(round_keys);
   return output;
 }
 
 unsigned char *aes_decrypt_block(unsigned char *ciphertext,
                                  unsigned char *key) {
-  // TODO: Implement me!
-  unsigned char *output =
-      (unsigned char *)malloc(sizeof(unsigned char) * (BLOCK_ROW * BLOCK_COL));
+  int block_size = (BLOCK_ROW * BLOCK_COL);
+
+  unsigned char *output = (unsigned char *) malloc(sizeof(unsigned char) * block_size);
+  unsigned char *round_keys = expand_key(key);
+
+  // Init round
+  memcpy(output, ciphertext, block_size);
+  
+  for(int i = 10; i > 0; i--) {
+    unsigned char *round_key = &round_keys[(i * KEY_COL) * KEY_ROW];
+    add_round_key(output, round_key);
+    if (i <= 9) invert_mix_columns(output);
+    invert_shift_rows(output);
+    invert_sub_bytes(output);
+  }
+
+  add_round_key(output, round_keys);
+
+  free(round_keys);
   return output;
 }
 

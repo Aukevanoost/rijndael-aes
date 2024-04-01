@@ -29,7 +29,7 @@ class TestExpandKey:
 
         # Act
         actual = HeapArray.of(
-            size=11*16, 
+            size=16 * 11, 
             fn=lambda: aes.expand_key(master_key)
         )
 
@@ -51,7 +51,7 @@ class TestExpandKey:
 
         # Act
         actual = HeapArray.of(
-            size=11*16, 
+            size=16 * 11, 
             fn=lambda: aes.expand_key(master_key)
         )
         expected = format_ref_key(ref.AES(input)._key_matrices)

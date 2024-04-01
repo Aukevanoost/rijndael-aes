@@ -7,7 +7,6 @@ class HeapArray:
         self.active = True
         self._addr = addr
         self._val = ctypes.string_at(addr, size)
-        print(self.value)
 
     @property
     def value(self): 
