@@ -122,6 +122,14 @@ void invert_mix_columns(unsigned char *block) {
 }
 
 /*
+ * *** XOR_B Bytes ***
+ */
+void _XOR_B(unsigned char *a, unsigned char *b, int length) {
+  for(int i = 0; i < length; i++)
+    b[i] = a[i] ^ b[i];
+}
+
+/*
  * This operation is shared between encryption and decryption
  */
 void add_round_key(unsigned char *block, unsigned char *round_key) {
@@ -134,30 +142,24 @@ void add_round_key(unsigned char *block, unsigned char *round_key) {
  * vector, containing the 11 round keys one after the other
  */
 unsigned char *expand_key(unsigned char *cipher_key) {
-  unsigned char *round_key = malloc((KEY_COL * KEY_ROW) * 2); // 176
+  unsigned char *round_key = malloc((KEY_COL * KEY_ROW) * 11); // 176
 
   // row 0-3
   memcpy(round_key, cipher_key, (KEY_COL * KEY_ROW));
   for(int i = 4; i < 44;i++) {
-    unsigned char *row = &round_key[i * KEY_COL];
-    unsigned char *old_row = &round_key[(i-1) * KEY_COL];
+    unsigned char *col = &round_key[i * KEY_COL];
+    unsigned char *prev_col = &round_key[(i-1) * KEY_COL];
+    unsigned char *prev_block = &round_key[(i-4) * KEY_COL]; // I-4
 
-    memcpy(row, old_row, KEY_COL);
-    shift_word(row, KEY_COL);
-    
+    memcpy(col, prev_col, KEY_COL);
+
+    if(i%4 == 0) {
+      shift_word(col, KEY_COL); 
+      _sub_word(col, S_BOX); 
+      col[0] ^= R_CON[i/4];  
+    }
+    _XOR_B(prev_block, col, KEY_COL);
   }
-  
- 
-
-  // array of 32-bit words (columns)  [0..43]
-  // first 4 are given cipher key
-  // words in positions that are multiple of 4 are calculated by 
-    // A
-      // - applying the rotword on the previous word Wi-1
-      // - subbytes transformations on the previous word Wi-1
-    // B
-      // - adding XOR to result (W) and W-3
-      // + a round constant Rcon(4)
 
   return round_key;
 }

@@ -1,5 +1,5 @@
 import ctypes
-from util.lib import aes, pretty_hex
+from util.lib import aes, format_word
 import aes_ref.aes as ref
 import copy
 from wrappers import UnitFixture
@@ -53,7 +53,7 @@ class TestEncryptMixColumns:
                 b'\x5d\x52\x11\x98'+\
                 b'\x30\xae\xf1\xe5' 
         
-        #print(pretty_hex(input))
+        #print(format_word(input))
 
         expected = ref.bytes2matrix(input)
         word = copy.deepcopy(input)
@@ -65,8 +65,8 @@ class TestEncryptMixColumns:
 
         # Assert
         printable = ref.matrix2bytes(expected)
-        print(pretty_hex(printable))
-        print(pretty_hex(actual))
+        print(format_word(printable))
+        print(format_word(actual))
 
         assert printable.hex() == actual.hex()
 
@@ -103,7 +103,7 @@ class TestDecryptMixColumns:
                 b'\x48\xf8\xd3\x7a' + \
                 b'\x28\x06\x26\x4c'
         
-        #print(pretty_hex(input))
+        #print(format_word(input))
 
         expected = ref.bytes2matrix(input)
         word = copy.deepcopy(input)
@@ -115,7 +115,7 @@ class TestDecryptMixColumns:
 
         # Assert
         printable = ref.matrix2bytes(expected)
-        # print(pretty_hex(printable))
-        # print(pretty_hex(actual))
+        # print(format_word(printable))
+        # print(format_word(actual))
 
         assert printable.hex() == actual.hex()

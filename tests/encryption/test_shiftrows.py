@@ -1,5 +1,5 @@
 import ctypes
-from util.lib import aes, pretty_hex
+from util.lib import aes, format_word
 from wrappers import UnitFixture
 import aes_ref.aes as ref
 
@@ -67,9 +67,9 @@ class TestEncryptShiftRows:
         actual = ctypes.string_at(block, 16)
 
         # Assert
-        print('i: ' + pretty_hex(fixture.input))
-        print('e: ' + pretty_hex(fixture.expected))
-        print('a: ' + pretty_hex(actual))
+        print('i: ' + format_word(fixture.input))
+        print('e: ' + format_word(fixture.expected))
+        print('a: ' + format_word(actual))
         assert actual == fixture.expected
 
     # 
