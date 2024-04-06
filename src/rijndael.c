@@ -24,7 +24,7 @@ plaintext or the ciphertext
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 #include "lookup_table.c"
 
 /*
@@ -41,13 +41,13 @@ void _sub_word(unsigned char *word, int length, unsigned char *lookup_table) {
 // For each column in block, substitute cells for items in S_BOX
 void sub_bytes(unsigned char *block) {
   for (int c = 0; c < BLOCK_ROW_SIZE; c++)
-    _sub_word(&block[c * BLOCK_COL_SIZE], BLOCK_COL_SIZE, &S_BOX);
+    _sub_word(&block[c * BLOCK_COL_SIZE], BLOCK_COL_SIZE, S_BOX);
 }
 
 // For each column in block, substitute column using S_BOX_INV
 void invert_sub_bytes(unsigned char *block) {
   for (int c = 0; c < BLOCK_ROW_SIZE; c++)
-    _sub_word(&block[c * BLOCK_COL_SIZE], BLOCK_COL_SIZE, &S_BOX_INV);
+    _sub_word(&block[c * BLOCK_COL_SIZE], BLOCK_COL_SIZE, S_BOX_INV);
 }
 
 /*
