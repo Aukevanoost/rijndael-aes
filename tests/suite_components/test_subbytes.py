@@ -2,6 +2,13 @@ import ctypes
 from util.lib import aes
 from wrappers import UnitFixture
 
+#
+# The goal of SubBytes is to substitute a given byte or byte array by 
+# the bytes that correspond to the locations in the lookup table
+# example: 
+# - lookup = [5, 5, 5, 6, 5] <- loc: [3]
+# - sub_x(3, lookup) = 6
+# 
 class TestWordSubBytesLogic: 
     def test_subbytes_word(self):
         # Arrange
@@ -50,6 +57,7 @@ class TestWordSubBytesLogic:
 
         # Assert
         assert actual.hex() == fixture.expected.hex()
+
 
 class TestEncryptSubBytes:
     def test_sbox_first_block(self):
@@ -117,6 +125,7 @@ class TestEncryptSubBytes:
 
         # Assert
         assert actual.hex() == fixture.expected.hex()
+
 
 class TestDecryptSubBytes:
     def test_sbox_inv_first_block(self):

@@ -32,7 +32,7 @@ class TestDecryptBlock:
         )        
 
         # Assert
-        print(format_block_hor(actual.value, 4))
+        # print(format_block_hor(actual.value, 4))
         assert actual.value == expected
 
     
@@ -62,3 +62,34 @@ class TestDecryptBlock:
         # print(format_block_hor(actual.value, 4))
         # print(format_block_hor(expected, 4))
         assert actual.value == expected
+
+    def test_decrypt_block_multiple_times(self):
+        cipher = [
+            b'\x8d\x2b\x21\x1a\xe0\x7b\x6f\xb5\xbc\xa8\xfa\xa0\x2b\xb2\xa2\x0c',
+            b'\xa2\x5e\x98\xc0\x5e\x8c\x98\xb8\x24\xba\x5a\x75\xcc\x65\x10\x2e',
+            b'\xc6\xca\x04\xbd\xed\x1b\x21\x46\x2f\x59\x1d\x95\x2c\x9a\x11\x63',
+            b'\xa8\xfa\x94\x6a\x53\xad\x28\x47\x6e\xa7\xbe\x08\xd7\x4e\x46\x5f'
+        ]
+        keys = [
+            'TZm58r8si7h39kYV',
+            'vFijZrNLn9uQST3i',
+            'Z1PwIcqJprZMeEsy',
+            'al0iXZhNrdhhMI3X'
+        ]
+        for rnd in range(len(cipher)):       
+
+
+            # Act 
+            actual = HeapArray.of(
+                size=16, 
+                fn=lambda: aes.aes_decrypt_block(
+                    ctypes.create_string_buffer(cipher[rnd], 16), 
+                    ctypes.create_string_buffer(bytes(keys[rnd], 'ascii'), 16)
+                )
+            )       
+            expected = ref.AES(bytes(keys[rnd], 'ascii')).decrypt_block(cipher[rnd])
+            # Assert
+            # print(actual.value.decode('ascii'))
+            assert actual.value == expected
+
+    

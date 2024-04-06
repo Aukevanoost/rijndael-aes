@@ -3,6 +3,13 @@ from util.lib import aes, format_ref_key, format_block_hor
 from wrappers.heaparray import HeapArray
 import aes_ref.aes as ref
 
+
+#
+# The expand_key will receive a 16-bit key and expand it to a 11 (block) * 16-bit key. 
+# The first block is the given key, the rest is calculated using the rijndael algorithm. 
+# Every round uses 1 block. 
+#
+
 # Example used: 
 # https://formaestudio.com/rijndaelinspector/archivos/Rijndael_Animation_v4_eng-html5.html
 class TestExpandKey: 

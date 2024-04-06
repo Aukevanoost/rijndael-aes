@@ -63,3 +63,32 @@ class TestEncryptBlock:
         # print(format_block_hor(actual.value, 4))
         # print(format_block_hor(expected, 4))
         assert actual.value == expected
+
+    
+    def test_encrypt_block_multiple_times(self):
+        msg = [
+            'aanbouwkeukentje',
+            'aandelenmakelaar',
+            'afvoermiddeltjes',
+            'zuurstoftekorten'
+        ]
+        keys = [
+            'TZm58r8si7h39kYV',
+            'vFijZrNLn9uQST3i',
+            'Z1PwIcqJprZMeEsy',
+            'al0iXZhNrdhhMI3X'
+        ]
+        for rnd in range(len(msg)):       
+
+
+            # Act 
+            actual = HeapArray.of(
+                size=16, 
+                fn=lambda: aes.aes_encrypt_block(
+                    ctypes.create_string_buffer(bytes(msg[rnd], 'ascii'), 16), 
+                    ctypes.create_string_buffer(bytes(keys[rnd], 'ascii'), 16)
+                )
+            )       
+            expected = ref.AES(bytes(keys[rnd], 'ascii')).encrypt_block(bytes(msg[rnd], 'ascii'))
+            # Assert
+            assert actual.value == expected

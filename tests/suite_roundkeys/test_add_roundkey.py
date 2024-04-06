@@ -2,7 +2,9 @@ import ctypes
 from util.lib import aes, format_word, format_block_hor
 import aes_ref.aes as ref
 
-
+#
+# Here the roundKey will be XOR'ed in the current block
+#
 class TestAddRoundkey:
 
     def test_add_roundkey_first_block(self):

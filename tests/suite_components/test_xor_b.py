@@ -1,6 +1,11 @@
 import ctypes
 from util.lib import aes
 
+#
+# A will be XOR'ed into B
+# example:
+# - XORB(00001111, 00110011) = 00110011
+#
 class TestXORBLogic: 
     def test_xor_single_pos(self):
         # Arrange

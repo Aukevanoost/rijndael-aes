@@ -3,6 +3,11 @@ from util.lib import aes, format_word
 from wrappers import UnitFixture
 import aes_ref.aes as ref
 
+# 
+# The goal of shiftrows is to shift the pos of each byte in the list to the left or right: 
+# Example: 
+# - shift_rows([1,2,3,4]) = [2,3,4,1]
+# - inverse_shift_rows([1,2,3,4]) = [4, 1, 2, 3]
 
 class TestEncryptShiftRows:
     # 

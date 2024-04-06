@@ -4,6 +4,12 @@ import aes_ref.aes as ref
 import copy
 from wrappers import UnitFixture
 
+
+# 
+# The goal of mixcolumns is to mix the columns to make the algorithm harder to crack. 
+# 
+# The four numbers of one column are modulo multiplied in Rijndael's Galois Field by a given matrix. Or something
+# 
 class TestEncryptMixColumns: 
      
     def test_column(self):
@@ -21,9 +27,10 @@ class TestEncryptMixColumns:
         assert expected.hex() == actual.hex()
 
     def test_mixcolumns_rijndael_block(self):
-        # The four numbers of one column are modulo multiplied in Rijndael's Galois Field by a given matrix.
-
-        # Note, the matrix is inversed, cols are rows 
+        # Note, the matrix is inversed, As seen in format in c-code.
+        # 01 04 07
+        # 02 05 08
+        # 03 06 09
         fixture = UnitFixture(
                 input = b'\xd4\xbf\x5d\x30' +
                         b'\xe0\xb4\x52\xae' +
@@ -46,7 +53,6 @@ class TestEncryptMixColumns:
         assert actual.hex() == fixture.expected.hex()
 
     def test_mixcolumns(self):
-        # The four numbers of one column are modulo multiplied in Rijndael's Galois Field by a given matrix.
 
         input = b'\xd4\xe0\xb8\x1e'+\
                 b'\xbf\xb4\x41\x27'+\
@@ -96,15 +102,11 @@ class TestDecryptMixColumns:
         assert actual.hex() == fixture.expected.hex()
 
     def test_mixcolumns(self):
-        # The four numbers of one column are modulo multiplied in Rijndael's Galois Field by a given matrix.
-
         input = b'\x04\x66\x81\xe5' + \
                 b'\xe0\xcb\x19\x9a' + \
                 b'\x48\xf8\xd3\x7a' + \
                 b'\x28\x06\x26\x4c'
         
-        #print(format_word(input))
-
         expected = ref.bytes2matrix(input)
         word = copy.deepcopy(input)
         
