@@ -4,7 +4,7 @@ from util.lib import aes
 
 class HeapArray:
     def __init__(self, size, addr):
-        self.active = True
+        self._active = True
         self._addr = addr
         self._val = ctypes.string_at(addr, size)
 
@@ -15,8 +15,13 @@ class HeapArray:
     def hex(self):
         return self._val.hex()
 
+    def free(self):
+        if self._active:
+            self._active = False
+            aes.cleanup(self._addr)
+
     def __del__(self):
-        aes.cleanup(self._addr)
+        self.free()
 
     @staticmethod
     def set(size, addr):

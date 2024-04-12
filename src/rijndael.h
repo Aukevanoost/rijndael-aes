@@ -23,10 +23,10 @@ plaintext or the ciphertext
 #ifndef RIJNDAEL_H
 #define RIJNDAEL_H
 
-#define BLOCK_ACCESS(block, row, col) (block[(row * 4) + col])
-
 #define BLOCK_ROW_SIZE 4
 #define BLOCK_COL_SIZE 4
+
+#define BLOCK_ACCESS(block, row, col) (block[(row * BLOCK_COL_SIZE) + col])
 
 #define KEY_ROW_SIZE 4
 #define KEY_COL_SIZE 4
