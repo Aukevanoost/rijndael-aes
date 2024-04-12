@@ -1,12 +1,14 @@
 import ctypes
 from util.lib import aes
-from util.formatters import format_block_hor
+from util.formatter import Formatter
 import aes_ref.aes as ref
 from util.wrappers import HeapArray
 
 class TestDecryptBlock:
 
     def test_decrypt_block(self):
+        # format = Formatter.of_block(4)
+
         input = ctypes.create_string_buffer(
             b'\x39\x25\x84\x1d' + \
             b'\x02\xdc\x09\xfb' + \
@@ -33,11 +35,13 @@ class TestDecryptBlock:
         )        
 
         # Assert
-        # print(format_block_hor(actual.value, 4))
+        # print(format.block_hor(actual.value))
         assert actual.value == expected
 
     
     def test_encrypt_block_with_ref(self):
+        # format = Formatter.of_block(4)
+
         cipher =    b'\x39\x25\x84\x1d' + \
                     b'\x02\xdc\x09\xfb' + \
                     b'\xdc\x11\x85\x97' + \
@@ -60,8 +64,8 @@ class TestDecryptBlock:
  
 
         # Assert
-        # print(format_block_hor(actual.value, 4))
-        # print(format_block_hor(expected, 4))
+        # print(format.block_hor(actual.value))
+        # print(format.block_hor(expected))
         assert actual.value == expected
 
     def test_decrypt_block_multiple_times(self):

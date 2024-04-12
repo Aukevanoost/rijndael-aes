@@ -1,6 +1,6 @@
 import ctypes
 from util.lib import aes
-from util.formatters import format_word, format_block_hor
+from util.formatter import Formatter
 import aes_ref.aes as ref
 
 #
@@ -36,6 +36,7 @@ class TestAddRoundkey:
         assert actual.hex() == expected.hex()
 
     def test_add_roundkey_second_block(self):
+        # format = Formatter.of_block(4)
         input = ctypes.create_string_buffer(
             b'\x58\x4d\xca\xf1' + 
             b'\x1b\x4b\x5a\xac' + 
@@ -58,14 +59,15 @@ class TestAddRoundkey:
         # Act 
         aes.add_round_key(input, round_key)
         actual = ctypes.string_at(input, 16)
-        # print(format_block_hor(actual, 4))
+        # print(format.block_hor(actual))
         # print("")
-        # print(format_block_hor(expected, 4))
+        # print(format.block_hor(expected))
 
         # Assert
         assert actual.hex() == expected.hex()
 
     def test_add_roundkey_first_block_against_ref(self):
+        # format = Formatter.of_block(4)
         input = b'\x04\x66\x81\xe5' + \
                 b'\xe0\xcb\x19\x9a' + \
                 b'\x48\xf8\xd3\x7a' + \
@@ -89,9 +91,10 @@ class TestAddRoundkey:
         expected = ref.matrix2bytes(input_matrix_ref)
 
         # Assert
-        # print(format_block_hor(actual, 4))
+        # print(format.block_hor(actual))
         # print("")
-        # print(format_block_hor(expected, 4))
+        # print(format.block_hor(expected))
+
         assert actual.hex() == expected.hex()
 
 

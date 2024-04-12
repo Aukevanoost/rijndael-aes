@@ -1,7 +1,6 @@
 import ctypes
 import random
 from util.lib import aes
-from util.formatters import format_block_hor
 import aes_ref.aes as ref
 from util.wrappers import HeapArray
 

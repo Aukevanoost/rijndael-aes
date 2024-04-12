@@ -1,6 +1,6 @@
 import ctypes
 from util.lib import aes 
-from util.formatters import format_word
+from util.formatter import Formatter
 from util.wrappers import UnitFixture
 import aes_ref.aes as ref
 
@@ -54,6 +54,7 @@ class TestEncryptShiftRows:
     # Test shiftrows block
     # 
     def test_shiftrows_block(self):
+        # format = Formatter.of_block(4)
         fixture = UnitFixture(
                 input = b'\x11\x21\x31\x41' +
                         b'\x12\x22\x32\x42' +
@@ -73,9 +74,9 @@ class TestEncryptShiftRows:
         actual = ctypes.string_at(block, 16)
 
         # Assert
-        print('i: ' + format_word(fixture.input))
-        print('e: ' + format_word(fixture.expected))
-        print('a: ' + format_word(actual))
+        # print('i: ' + format.word(fixture.input))
+        # print('e: ' + format.word(fixture.expected))
+        # print('a: ' + format.word(actual))
         assert actual == fixture.expected
 
     # 

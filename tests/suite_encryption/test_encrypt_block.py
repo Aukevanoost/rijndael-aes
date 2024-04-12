@@ -1,6 +1,6 @@
 import ctypes
 from util.lib import aes 
-from util.formatters import format_ref_key, format_block_hor
+from util.formatter import Formatter
 import aes_ref.aes as ref
 from util.wrappers import HeapArray
 
@@ -8,6 +8,7 @@ from util.wrappers import HeapArray
 class TestEncryptBlock:
 
     def test_encrypt_block(self):
+        # format = Formatter.of_block(4)
         input = ctypes.create_string_buffer(
             b'\x32\x43\xf6\xa8' + 
             b'\x88\x5a\x30\x8d' + 
@@ -34,11 +35,13 @@ class TestEncryptBlock:
         )        
 
         # Assert
-        print(format_block_hor(actual.value, 4))
+        # print(format.block_hor(actual.value))
         assert actual.value == expected
 
     
     def test_encrypt_block_with_ref(self):
+        # format = Formatter.of_block(4)
+
         message =   b'\x32\x43\xf6\xa8' + \
                     b'\x88\x5a\x30\x8d' + \
                     b'\x31\x31\x98\xa2' + \
@@ -61,8 +64,8 @@ class TestEncryptBlock:
  
 
         # Assert
-        # print(format_block_hor(actual.value, 4))
-        # print(format_block_hor(expected, 4))
+        # print(format.block_hor(actual.value))
+        # print(format.block_hor(expected))
         assert actual.value == expected
 
     

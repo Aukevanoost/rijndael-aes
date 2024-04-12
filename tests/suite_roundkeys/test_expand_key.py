@@ -1,6 +1,6 @@
 import ctypes
 from util.lib import aes
-from util.formatters import format_ref_key, format_block_hor
+from util.formatter import Formatter
 from util.wrappers import HeapArray
 import aes_ref.aes as ref
 
@@ -13,8 +13,10 @@ import aes_ref.aes as ref
 
 # Example used: 
 # https://formaestudio.com/rijndaelinspector/archivos/Rijndael_Animation_v4_eng-html5.html
-class TestExpandKey: 
+class TestExpandKey:
+     
     def test_expand_key(self):
+        # format = Formatter.of_block(4)
         # # Arrange
         input = b'\x2b\x7e\x15\x16' + \
                 b'\x28\xae\xd2\xa6' + \
@@ -42,13 +44,14 @@ class TestExpandKey:
         )
 
         # Assert
-        # print(format_block_hor(actual, 4))
+        # print(format.block_hor(actual))
         # print("")
-        # print(format_block_hor(expected, 4))
+        # print(format.block_hor(expected))
 
         assert actual.value == expected
 
     def test_expand_key_from_ref(self):
+        format = Formatter.of_block(4)
         # Arrange
         input = b'\x2b\x7e\x15\x16' + \
                 b'\x28\xae\xd2\xa6' + \
@@ -62,10 +65,10 @@ class TestExpandKey:
             size=16 * 11, 
             fn=lambda: aes.expand_key(master_key)
         )
-        expected = format_ref_key(ref.AES(input)._key_matrices)
+        expected = format.ref_key(ref.AES(input)._key_matrices)
 
         # Assert
-        # print(format_block_hor(actual, 4))
+        # print(format.block_hor(actual.value))
         # print("")
-        # print(format_block_hor(expected, 4))
+        # print(format.block_hor(expected))
         assert expected == actual.value
