@@ -1,19 +1,21 @@
-
 import ctypes
 from util.lib import aes
 
+#
+# HeapArray: A wrapper around a pointer to prevent memory leaks
+#
 class HeapArray:
     def __init__(self, size, addr):
         self._active = True
         self._addr = addr
-        self._val = ctypes.string_at(addr, size)
+        self._size = size
 
     @property
     def value(self): 
-         return self._val 
+         return ctypes.string_at(self._addr, self._size) 
 
     def hex(self):
-        return self._val.hex()
+        return self.value.hex()
 
     def free(self):
         if self._active:
